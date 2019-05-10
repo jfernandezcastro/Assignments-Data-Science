@@ -1,0 +1,132 @@
+---
+output:
+  word_document: default
+  pdf_document: default
+  html_document: default
+---
+# 01_assignment_FernandezCastro.Rmd
+
+
+```{r scorecard} 
+## Clear environment
+rm(list=ls())
+## Get necessary libraries-- won't work the first time, because you need to install them!
+library(tidyverse)
+```
+
+
+```{r load_data}
+## Load in the data
+load("college.Rdata")
+```
+
+
+# 1. A sentence that says "Hello, World"
+```{r}
+## A sentence that says "Hello, World"
+print("Hello, World")
+```
+
+
+# 2.R output that summarizes one of the variables in the college Rdata 
+```{r}
+#R output that summarizes one of the variables in the college Rdata
+## What's the average sat?
+sc%>%summarize(mean_sat_avg=mean(sat_avg,na.rm=TRUE))
+```
+```{r combining commands}
+## What's the average sat for most selective colleges
+sc%>%filter(adm_rate<.1)%>%summarize(mean_sat_avg=mean(sat_avg,na.rm=TRUE))
+## What's the average sat for selective colleges
+sc%>%filter(adm_rate<.2)%>%summarize(mean_sat_avg=mean(sat_avg,na.rm=TRUE))
+## What's the average sat for moderately selective colleges
+sc%>%filter(adm_rate<.3)%>%summarize(mean_sat_avg=mean(sat_avg,na.rm=TRUE))
+## What's the average sat for least selective colleges
+sc%>%filter(adm_rate<.4)%>%summarize(mean_sat_avg=mean(sat_avg,na.rm=TRUE))
+
+```
+
+The average SAT score for all colleges in the data set is 1200.19 compared to the average SAT score of 1428.75 for the most selective colleges (adm_rate <.1), a SAT score of 1355.78 for selective colleges (adm_rate <.2), a SAT score of 1277.53 for moderately selective colleges (adm_rate <.3), and a SAT score of 1200.19 for the least selective (adm_rate <.4). 
+
+Generally, there seems to be a positive linear relationship: the more selective the college the higher the average SAT score of the undergraduates accepted but there are several outliers or exceptions. From the literature, we can conjecture that those exceptions are mainly certain specialty colleges concentrating their programs in the arts or other types of programs that do not require high analytical and scholarly skills but rather artistic or other types of skills (see below).
+
+```{r}
+## What is the overall relationship between admission rate and average SAT score?
+ggplot(data = sc) + geom_point(mapping = aes (x = adm_rate, y = sat_avg))
+
+```
+
+
+#3. Calculate the average earnings for individuals at the most selective colleges, then compare that with individuals at the least selective colleges in the dataset.
+```{r}
+## What's the average earnings for individuals at the very selective colleges?
+sc%>%filter(adm_rate<.1)%>%summarize(mean_md_earn_wne_p6=mean(md_earn_wne_p6,na.rm=TRUE))
+
+## What's the average earning for individulas at the not very selective colleges?
+sc%>%filter(adm_rate<.3)%>%summarize(mean_md_earn_wne_p6=mean(md_earn_wne_p6,na.rm=TRUE))
+
+```
+
+The average earnings for individuals 6 years after graduating at the most selective colleges was $53,500 compared to the average earnings of $45,646.15 for the graduates from the least selective colleges. That was a difference of $8,146 per year.
+
+
+#4. Find a way to determine whether colleges with very high SAT scores tend to be larger or smaller than colleges with low SAT scores.
+
+```{r summarize}
+#R output that summarizes one of the variables in the college Rdata
+## What's the average number of undergraduates?
+sc%>%summarize(mean_ugds=mean(ugds,na.rm=TRUE))
+```
+
+The average size for the number of undergraduate students in all colleges is 5,744.6  I divided the college size in 6 categories: very small colleges (<1000 students), small colleges (<2000 students), medium-size colleges (<5000 students), medium-large size colleges (<10000 students), large colleges (<20000 students) and very-large size colleges (<30000)
+
+```{r}
+## What's the average sat for very small colleges
+sc%>%filter(ugds<1000)%>%summarize(mean_sat_avg=mean(sat_avg,na.rm=TRUE))
+## What's the average sat for small colleges
+sc%>%filter(ugds<2000)%>%summarize(mean_sat_avg=mean(sat_avg,na.rm=TRUE))
+## What's the average sat for medium-size colleges
+sc%>%filter(ugds<5000)%>%summarize(mean_sat_avg=mean(sat_avg,na.rm=TRUE))
+## What's the average sat for medium-large size colleges
+sc%>%filter(ugds<10000)%>%summarize(mean_sat_avg=mean(sat_avg,na.rm=TRUE))
+## What's the average sat for large colleges
+sc%>%filter(ugds<20000)%>%summarize(mean_sat_avg=mean(sat_avg,na.rm=TRUE))
+## What's the average sat for very-large size colleges
+sc%>%filter(ugds<30000)%>%summarize(mean_sat_avg=mean(sat_avg,na.rm=TRUE))
+```
+
+The colleges with undergraduate students with higher SAT scores tend to be in medium-large to very-large size colleges (more than 10000 students). As the college size get smaller, there is a slightly lower SAT score, so the small and very small colleges (less than 2000 students) tend to have undergraduates with lower than average SAT scores compared to medium and large size colleges. The relationship between college size and average SAT scores appears to be linear and positive: the larger the college the higher the average SAT score of its students.
+
+
+#5. Plot the relationship between cost and debt. What do you see? Does this suprise you?
+
+```{r}
+## What is the relationship between cost and debt?
+
+ggplot(data = sc) + geom_point(mapping = aes (x = costt4_a, y = debt_mdn))
+
+```
+
+There seems to be a positive relationship between the cost of college and student debt but there are many outliers and exceptions.
+
+
+#6. Now, provide separate plots for cost and debt by control of the institution.
+
+```{r}
+## What's the relationship between cost and debt by control or type of college (1=public, 2=private non-profit), 3=private for profit)?
+
+ggplot (data = sc%>%filter(control==1)) + geom_point(mapping = aes (x = costt4_a, y = debt_mdn))
+  
+ggplot (data = sc%>%filter(control==2)) + geom_point(mapping = aes (x = costt4_a, y = debt_mdn))
+
+ggplot (data = sc%>%filter(control==3)) + geom_point(mapping = aes (x = costt4_a, y = debt_mdn))
+
+```
+
+There is be a positive relationship between cost of college and student debt within public colleges: the higher the college cost the higher the average student debt. There are very few exceptions or outliers to this pattern.
+
+The relationship between cost of college and student debt is also positive within private for-profit colleges but with more exceptions and outliers to the pattern. It might not be a linear relationship.
+
+The relationship between cost of college and student debt within private non-for-profit colleges seems neutral to negative but there are two exceptions or outliers. The overall relationship is less clear since there are too few cases for mapping that relationship in a reliable way. We can conjecture that the neutral to slightly negative relationship is related to the fact that some private non-for-profit colleges have a high level of endowment and can provide generous scholarships and financial aid, including tuition remission. These colleges typically have the highest costs and also the highest level of financial aid, which reduces the overall student debt.
+
+
